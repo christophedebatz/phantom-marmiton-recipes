@@ -3,6 +3,7 @@ import StepHandlerFactory from '../../step/StepHandlerFactory'
 import Listenable from './Listenable'
 import StepHandler from './StepHandler'
 import Filterable from './Filterable'
+import ScrapHelper from './ScrapHelper'
 
 enum Filter {
   Dish = 'dish',
@@ -18,5 +19,6 @@ export {
   Filterable,
   Listenable,
   StepHandler,
+  ScrapHelper,
   Scrapper,
 }

@@ -12,7 +12,7 @@ declare global {
   type FilterSafeValueType =
     Exclude<PhantomRequestFilters[keyof PhantomRequestFilters], undefined>
   
-  type StepHandlerReturnType<T> = T[] | null
+  type StepHandlerReturnType<T> = T | null
   
   type FilterType = ( typeof Filter )[keyof typeof Filter];
   

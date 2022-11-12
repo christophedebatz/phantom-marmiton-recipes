@@ -4,12 +4,12 @@ import { Recipe } from './dto'
 import { PhantomRequest } from '../common/request/'
 import { Page } from 'puppeteer'
 
-export default class UserSummary extends AbstractStepHandler {
+export default class UserSummary extends AbstractStepHandler<null> {
 
   /**
    * @inheritDoc
    */
-  public async handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<Recipe>> {
+  public async handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<null>> {
     this.progress(0, 'Initializing...')
     this.message(`Started scrapping data from ${Scrapper.WebsiteBaseUrl}...`)
     this.message(`- Search query: "${request.query}"`)

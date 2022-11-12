@@ -1,5 +1,6 @@
 import puppeteer, { Page } from 'puppeteer'
-import { Recipe } from '../step/dto/index'
+import { Recipe } from '../step/dto'
+import { ScrapHelper } from '../common/scrap'
 const { parentPort, isMainThread, workerData } = require('worker_threads')
 
 export default class LibRecipeSupplier {
@@ -16,16 +17,25 @@ export default class LibRecipeSupplier {
   
       const page = await browser.newPage()
       await page.goto(workerData.payload)
-      console.log('url supplier=', workerData.payload)
       
-      try {
-        await page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 5000 })
-      } catch (exception) {
-        console.error(`Cannot proceed to parsing for URL ${workerData.payload} because of timeout overpassed!`)
-        console.error('Yet ignore this result...')
-      }
+      let timeout = 2000
+      do {
+        try {
+          await ScrapHelper.waitFor(timeout)
+          await page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 0 })
+          break
+        } catch (navException) {
+          try {
+            await ScrapHelper.tryCloseCookiePopin(page)
+          } catch (closeException) {
+            // do nothing here
+          }
+          timeout *= 2
+        }
   
-      // old fashioned-style is mandatory because of es2015 running context here
+        console.log(timeout)
+      } while (timeout < 5000)
+      
       const recipe = Object.assign(
         { url: workerData.payload },
         await this.resolveRecipeName(page),
@@ -33,8 +43,6 @@ export default class LibRecipeSupplier {
         await this.resolveRecipePictures(page),
         await this.resolveRecipeFilteringInfo(page)
       )
-      
-      console.log('ok recipe')
       
       await page.close()
       await browser.close()
@@ -110,7 +118,7 @@ export default class LibRecipeSupplier {
   }
   
   private async resolveRecipePictures (page: Page): Promise<Partial<Recipe>> {
-    const DOMSelector = 'div.SHRD__sc-1rqpopx-2 img'
+    const DOMSelector = 'div.RCP__sc-40fnuy-1 img'
 
     return await page.evaluate(DOMSelector => {
       const picturesUrls: string[] = []

@@ -1,5 +1,9 @@
 import { DishFilter } from '.'
 import { Filterable } from '../common/scrap'
+import DifficultyFilter from './DifficultyFilter'
+import CostFilter from './CostFilter'
+import DurationFilter from './DurationFilter'
+import SeasonalFilter from './SeasonalFilter'
 
 export default class FilterFactory {
   
@@ -11,7 +15,11 @@ export default class FilterFactory {
    */
   public buildFilters(): Filterable<FilterSafeValueType>[] {
       return [
-        new DishFilter()
+        new DishFilter(),
+        new DifficultyFilter(),
+        new CostFilter(),
+        new DurationFilter(),
+        new SeasonalFilter()
       ]
   }
 }

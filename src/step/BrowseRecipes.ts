@@ -5,7 +5,7 @@ import { AsyncTaskService } from '../common/task'
 import { Recipe } from './dto'
 import { Scrapper } from '../common/scrap'
 
-export default class BrowseRecipes extends AbstractStepHandler {
+export default class BrowseRecipes extends AbstractStepHandler<Recipe[]> {
 
   public constructor (
     private readonly scheduler: AsyncTaskService,
@@ -21,14 +21,14 @@ export default class BrowseRecipes extends AbstractStepHandler {
   /**
    * @inheritDoc
    */
-  public async handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<Recipe>> {
+  public async handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<Recipe[]>> {
     const searchQueryResultsCount = await this.resolveSearchQueryResultsCount(page)
     const totalPagesCount = Math.ceil(searchQueryResultsCount / this.recipesPerPage)
     const totalPagesToGrab = typeof request.pagesCount === 'undefined' ? totalPagesCount : request.pagesCount
     
-    console.log('hello world')
+    this.message(`${searchQueryResultsCount} search results, ${totalPagesCount} pages count (${totalPagesToGrab} pages to scrap)`)
     
-    let recipes: Recipe[] = []
+    const recipes: Recipe[] = []
     let currentPage = 1
     
     do {
@@ -38,19 +38,16 @@ export default class BrowseRecipes extends AbstractStepHandler {
       )
       
       const recipesUrls = await this.resolveRecipesUrlsForCurrentPage(page)
-      this.message(`Found ${recipesUrls.length} not-sponsored recipes on current page.`)
       const pageRecipes = await this.getRecipesForCurrentPage(recipesUrls)
   
       let hasNextPage = currentPage < totalPagesToGrab
-      recipes = recipes.concat(pageRecipes)
-      
-      console.log('hasNextPage=', hasNextPage)
+      pageRecipes.forEach(recipe => recipes.push(recipe))
       
       if (!hasNextPage) {
         break
       }
   
-      await this.navigateToPage(page, ++currentPage + 1)
+      await this.navigateToPage(page, currentPage + 1)
       this.message(`Yet navigates to page #${currentPage +1}`)
       currentPage++
     } while (true)
@@ -62,25 +59,24 @@ export default class BrowseRecipes extends AbstractStepHandler {
    * @inheritDoc
    */
   public getRank (): number {
-    return 4
+    return 3
   }
 
   private async navigateToPage(page: Page, pageIndex: number): Promise<void> {
     const url = new URL(page.url())
     const params = new URLSearchParams(url.search)
     
-    if (params.has('page')) {
-      params.set('page', pageIndex.toString())
-    } else {
+    params.has('page') ?
+      params.set('page', pageIndex.toString()) :
       params.append('page', pageIndex.toString())
-    }
    
-    await page.goto(`${url.protocol}//${url.host}${url.pathname}?${params.toString()}`)
+    const nextUrl = `${url.protocol}//${url.host}${url.pathname}?${params.toString()}`
+    await page.goto(nextUrl, { waitUntil: 'domcontentloaded'})
   }
   
   private async getRecipesForCurrentPage(recipesUrls: string[]): Promise<Recipe[]> {
+    const recipes: Recipe[] = []
     let recipesCount = 0
-    let recipes: Recipe[] = []
   
     do {
       const batchedRecipesUrls: string[] = []
@@ -92,15 +88,27 @@ export default class BrowseRecipes extends AbstractStepHandler {
           batchedRecipesUrls.push(poppedUrl)
         }
       }
+      
+      if (batchedRecipesUrls.length === 0) {
+        break
+      }
     
       batchedRecipesUrls.forEach(recipeUrl => {
         const recipe = this.scheduler.schedule<string, Recipe>('lib-recipe-supplier.js', recipeUrl)
         batchedRecipes.push(recipe)
         recipesCount++
       })
-    
-      recipes = recipes.concat(await Promise.all(batchedRecipes))
-    } while (recipesCount < this.recipesPerPage)
+      
+      const recipesResults = await Promise.all(batchedRecipes)
+      recipesResults.forEach(recipe => recipes.push(recipe))
+      this.message(`Just managed ${recipesResults.length} new URLs`)
+  
+      // uncompleted last batch
+      if (batchedRecipesUrls.length < this.maxConcurrentTasks) {
+        break
+      }
+  
+    } while (recipesCount <= this.recipesPerPage)
   
     return recipes
   }
@@ -124,18 +132,19 @@ export default class BrowseRecipes extends AbstractStepHandler {
         return false
       }
       
-      const urls: string[] = []
-      const links = document.querySelectorAll('a.MRTN__sc-1gofnyi-2')
-      links.forEach(link => {
-        const relativeUrl = link.getAttribute('href')
-        const isSponsored = isSponsoredRecipe(link)
+      const recipesUrls: string[] = []
+      const recipeLinks = document.querySelectorAll('a.MRTN__sc-1gofnyi-2')
+      
+      recipeLinks.forEach(recipeLink => {
+        const relativeUrl = recipeLink.getAttribute('href')
+        const isSponsored = isSponsoredRecipe(recipeLink)
         
         if (relativeUrl !== null && !isSponsored) {
-          urls.push(`${baseUri}${relativeUrl}`)
+          recipesUrls.push(`${baseUri}${relativeUrl}`)
         }
       })
       
-      return urls
+      return recipesUrls
     }, Scrapper.WebsiteBaseUrl)
   }
   

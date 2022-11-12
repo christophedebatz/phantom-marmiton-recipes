@@ -1,4 +1,3 @@
-import { Recipe } from './dto'
 import { Page } from 'puppeteer'
 import { PhantomRequest } from '../common/request/'
 import { StepHandler, Listenable } from '../common/scrap'
@@ -6,7 +5,7 @@ import { StepHandler, Listenable } from '../common/scrap'
 /**
  * Provides some common methods that all step handlers can use.
  */
-export default abstract class AbstractStepHandler implements StepHandler<StepHandlerReturnType<Recipe>> {
+export default abstract class AbstractStepHandler<T> implements StepHandler<StepHandlerReturnType<T>> {
   
   private listeners: Listenable[] = []
   
@@ -18,7 +17,7 @@ export default abstract class AbstractStepHandler implements StepHandler<StepHan
   /**
    * @inheritDoc
    */
-  public abstract handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<Recipe>>
+  public abstract handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<T>>
   
   /**
    * @inheritDoc

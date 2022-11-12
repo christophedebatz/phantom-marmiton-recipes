@@ -2,7 +2,7 @@ import { Page } from 'puppeteer'
 import { FilterHelper } from '.'
 import { Filter, Filterable } from '../common/scrap'
 
-export default class DishFilter implements Filterable<string[]> {
+export default class DurationFilter implements Filterable<string[]> {
   
   private readonly filterDescriptor: UrlFilterDescriptorType = this.describesFilter()
   
@@ -31,21 +31,14 @@ export default class DishFilter implements Filterable<string[]> {
     return params
   }
   
-  
   private describesFilter (): UrlFilterDescriptorType {
     return {
-      type: Filter.Dish,
-      query: 'dt',
+      type: Filter.Duration,
+      query: 'ttlt',
       items: [
-        { label: 'Starters', value: 'entree' },
-        { label: 'Main courses', value: 'platprincipal'},
-        { label: 'Desserts', value: 'dessert' },
-        { label: 'Appetizers', value: 'amusegueule' },
-        { label: 'Garnitures', value: 'accompagnement' },
-        { label: 'Sauces', value: 'sauce' },
-        { label: 'Drinks', value: 'boisson' },
-        { label: 'Candies', value: 'confiserie' },
-        { label: 'Advice', value: 'conseil' }
+        { label: 'Less than 15mns', value: '15'},
+        { label: 'Less than 30mns', value: '30'},
+        { label: 'Less than 45mns', value: '45'}
       ]
     }
   }

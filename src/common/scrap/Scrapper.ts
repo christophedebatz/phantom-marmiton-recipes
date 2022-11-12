@@ -20,8 +20,6 @@ export default class Scrapper {
     })
     
     const page = await browser.newPage()
-    await page.goto(Scrapper.WebsiteBaseUrl)
-
     let recipes: Recipe[] = []
     
     for (const handler of this.handlers) {

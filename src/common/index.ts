@@ -12,8 +12,8 @@ export const main = async (buster: any): Promise<void> => {
   if (validate(buster.argument)) {
     const scrapper = new Scrapper(handlerFactory.build())
     scrapper.attachListener(new class implements Listenable {
-      onMessage = (message: string): void => console.log(message)
-      onFailure = (message: string): void => console.error(message)
+      onMessage = (message: string): void => console.log(`* ${message}`)
+      onFailure = (message: string): void => console.error(`* ${message}`)
       onProgress = (percent: number, message: string): void => buster.progressHint(percent, message)
     })
     const recipes = await scrapper.scrap(buster.argument)

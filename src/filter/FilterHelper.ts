@@ -31,14 +31,4 @@ export default class FilterHelper {
       { timeout }
     )
   }
-  
-  /**
-   * Emulates function page.waitFor that actually throw a notImplementedException when called.
-   * Just pause the main js thread for the given amount of milliseconds.
-   *
-   * @param delayMs the waiting time in ms
-   */
-  public static async waitFor(delayMs: number): Promise<void> {
-    await (async () => new Promise<void>(resolve => setTimeout(resolve, 2000)))
-  }
 }
