@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "target": "es5",
+        "module": "esNext",
+        "outDir": "dist",
+        "lib": ["dom", "es2015"],
+        "esModuleInterop": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "alwaysStrict": true,
+        "typeRoots": ["main.d.ts", "node_modules/@types"]
+    },
+    "include": [
+        "./src",
+        "main.d.ts"
+    ],
+    "exclude": ["./node_modules"]
+}
