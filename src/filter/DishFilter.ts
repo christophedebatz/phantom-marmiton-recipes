@@ -4,7 +4,7 @@ import { Filter, Filterable } from '../common/scrap'
 
 export default class DishFilter implements Filterable<string[]> {
   
-  private readonly filterDescriptor: FilterDescriptorType
+  private readonly filterDescriptor: UrlFilterDescriptorType
   
   public constructor () {
     this.filterDescriptor = this.describesFilter()
@@ -20,43 +20,36 @@ export default class DishFilter implements Filterable<string[]> {
   /**
    * @inheritDoc
    */
-  public async filters (page: Page, filterItems: string[]): Promise<void> {
-    const menuItem = await page.waitForXPath(this.filterDescriptor.xpath, { visible: true })
-    await menuItem.click()
-  
-    console.log('--6 dish--')
-  
-    const filterItemSelectors: string[] = []
+  public async filters (page: Page, filterItems: string[]): Promise<URLSearchParams> {
+    const params = new URLSearchParams()
+    
     for (const filterItem of filterItems) {
       const itemConfig = FilterHelper.findFilterItemDescriptor(filterItem, this.filterDescriptor)
       
       // apply filter only if filter item config has been found
       if (itemConfig) {
-        filterItemSelectors.push(itemConfig.xpath)
+        params.append(this.filterDescriptor.query, itemConfig.value)
       }
     }
-    
-    for (const itemSelector of filterItemSelectors) {
-      const menuFilterItem = await page.waitForXPath(itemSelector, { visible: true })
-      await FilterHelper.waitForAccordionTransition(page)
-      await menuFilterItem.click()
-      await FilterHelper.waitFor(500)
-    }
+
+    return params
   }
   
-  private describesFilter (): FilterDescriptorType {
+  
+  private describesFilter (): UrlFilterDescriptorType {
     return {
       type: Filter.Dish,
-      xpath: '//p[text()="Type de plat"]/../../..',
+      query: 'dt',
       items: [
-        { label: 'Starters', xpath: '//button[text()="Entrée"]' },
-        { label: 'Main courses', xpath: '//button[text()="Plat principal"]' },
-        { label: 'Desserts', xpath: '//button[text()="Dessert"]' },
-        { label: 'Appetizers', xpath: '//button[text()="Amuse-gueule"]' },
-        { label: 'Garnitures', xpath: '//button[text()="Accompagnement"]' },
-        { label: 'Sauces', xpath: '//button[text()="Sauce"]' },
-        { label: 'Drinks', xpath: '//button[text()="Boisson"]' },
-        { label: 'Candies', xpath: '//button[text()="Confiserie"]' }
+        { label: 'Starters', value: 'entree' },
+        { label: 'Main courses', value: 'platprincipal'},
+        { label: 'Desserts', value: 'dessert' },
+        { label: 'Appetizers', value: 'amusegueule' },
+        { label: 'Garnitures', value: 'accompagnement' },
+        { label: 'Sauces', value: 'sauce' },
+        { label: 'Drinks', value: 'boisson' },
+        { label: 'Candies', value: 'confiserie' },
+        { label: 'Advice', value: 'conseil' }
       ]
     }
   }

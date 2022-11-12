@@ -16,11 +16,11 @@ declare global {
   
   type FilterType = ( typeof Filter )[keyof typeof Filter];
   
-  type FilterDescriptorType = {
+  type UrlFilterDescriptorType = {
     type: Filter,
-    xpath: string,
-    items: FilterDescriptorItemType[]
+    query: string
+    items: UrlFilterItemDescriptorType[]
   }
   
-  type FilterDescriptorItemType = { label: string, xpath: string }
+  type UrlFilterItemDescriptorType = { label: string, value: string }
 }

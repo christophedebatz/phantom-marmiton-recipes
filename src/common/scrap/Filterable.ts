@@ -20,5 +20,5 @@ export default interface Filterable<T> {
    * @param page the Puppeteer page browser
    * @param filterItems the requested filters
    */
-  filters (page: Page, filterItems: T): Promise<void>
+  filters (page: Page, filterItems: T): Promise<URLSearchParams>
 }

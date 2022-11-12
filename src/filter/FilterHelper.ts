@@ -8,7 +8,7 @@ export default class FilterHelper {
    * @param name the filter item's name
    * @param descriptor the descriptor as a dictionary
    */
-  public static findFilterItemDescriptor(name: string, descriptor: FilterDescriptorType): FilterDescriptorItemType | null {
+  public static findFilterItemDescriptor(name: string, descriptor: UrlFilterDescriptorType): UrlFilterItemDescriptorType | null {
     const foundItem = descriptor.items.filter(item => item.label === name).at(0)
     return typeof foundItem === 'undefined' ? null : foundItem
   }

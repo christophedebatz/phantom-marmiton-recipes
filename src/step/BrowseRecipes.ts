@@ -26,6 +26,8 @@ export default class BrowseRecipes extends AbstractStepHandler {
     const totalPagesCount = Math.ceil(searchQueryResultsCount / this.recipesPerPage)
     const totalPagesToGrab = typeof request.pagesCount === 'undefined' ? totalPagesCount : request.pagesCount
     
+    console.log('hello world')
+    
     let recipes: Recipe[] = []
     let currentPage = 1
     

@@ -8,6 +8,13 @@ export default class SearchRecipe extends AbstractStepHandler {
   /**
    * @inheritDoc
    */
+  public supports (request: PhantomRequest): boolean {
+    return typeof request.filters === 'undefined'
+  }
+  
+  /**
+   * @inheritDoc
+   */
   public async handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<Recipe>> {
     this.progress(0, 'Executing search query')
   
