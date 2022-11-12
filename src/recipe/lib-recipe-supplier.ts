@@ -19,9 +19,8 @@ export default class LibRecipeSupplier {
       console.log('url supplier=', workerData.payload)
       
       try {
-        await page.waitForNavigation({ waitUntil: ['networkidle2', 'domcontentloaded'], timeout: 5000 })
+        await page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 5000 })
       } catch (exception) {
-        await page.screenshot({ path: 'error-domcontentloaded-lib.png' })
         console.error(`Cannot proceed to parsing for URL ${workerData.payload} because of timeout overpassed!`)
         console.error('Yet ignore this result...')
       }
@@ -34,6 +33,8 @@ export default class LibRecipeSupplier {
         await this.resolveRecipePictures(page),
         await this.resolveRecipeFilteringInfo(page)
       )
+      
+      console.log('ok recipe')
       
       await page.close()
       await browser.close()

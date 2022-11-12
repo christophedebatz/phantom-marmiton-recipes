@@ -40,6 +40,7 @@ export default class DishFilter implements Filterable<string[]> {
       const menuFilterItem = await page.waitForXPath(itemSelector, { visible: true })
       await FilterHelper.waitForAccordionTransition(page)
       await menuFilterItem.click()
+      await FilterHelper.waitFor(500)
     }
   }
   

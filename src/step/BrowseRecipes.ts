@@ -28,7 +28,6 @@ export default class BrowseRecipes extends AbstractStepHandler {
     
     let recipes: Recipe[] = []
     let currentPage = 1
-    let hasNextPage = currentPage < totalPagesToGrab
     
     do {
       this.progress(
@@ -37,24 +36,19 @@ export default class BrowseRecipes extends AbstractStepHandler {
       )
       
       const recipesUrls = await this.resolveRecipesUrlsForCurrentPage(page)
+      this.message(`Found ${recipesUrls.length} not-sponsored recipes on current page.`)
       const pageRecipes = await this.getRecipesForCurrentPage(recipesUrls)
   
-      await page.screenshot({ path: 'screen-ecran1.png' })
-      console.log('screen done')
-  
-      hasNextPage = currentPage + 1 <= totalPagesToGrab
+      let hasNextPage = currentPage < totalPagesToGrab
       recipes = recipes.concat(pageRecipes)
-  
-      this.progress(
-        currentPage / totalPagesToGrab,
-        `Fetching recipes on page ${currentPage} / ${totalPagesToGrab}`
-      )
+      
+      console.log('hasNextPage=', hasNextPage)
       
       if (!hasNextPage) {
         break
       }
   
-      await this.navigateToPage(page, currentPage + 1)
+      await this.navigateToPage(page, ++currentPage + 1)
       this.message(`Yet navigates to page #${currentPage +1}`)
       currentPage++
     } while (true)
@@ -111,11 +105,30 @@ export default class BrowseRecipes extends AbstractStepHandler {
   
   private async resolveRecipesUrlsForCurrentPage (page: Page): Promise<string[]> {
     return await page.evaluate((baseUri: string) => {
-      const urls: string[] = []
+  
+      // small function to recognize the sponsored recipes
+      // that should not be taken into account
+      const isSponsoredRecipe = (node: Node): boolean => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent !== null && node.textContent.includes('Sponsorisé')) {
+          return true
+        }
+  
+        if (node.hasChildNodes()) {
+          return Array.from(node.childNodes)
+            .filter(childNode => isSponsoredRecipe(childNode))
+            .length > 0
+        }
+  
+        return false
+      }
       
-      document.querySelectorAll('a.MRTN__sc-1gofnyi-2').forEach(link => {
+      const urls: string[] = []
+      const links = document.querySelectorAll('a.MRTN__sc-1gofnyi-2')
+      links.forEach(link => {
         const relativeUrl = link.getAttribute('href')
-        if (relativeUrl !== null) {
+        const isSponsored = isSponsoredRecipe(link)
+        
+        if (relativeUrl !== null && !isSponsored) {
           urls.push(`${baseUri}${relativeUrl}`)
         }
       })

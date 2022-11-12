@@ -2,7 +2,8 @@ import { Page } from 'puppeteer'
 import { Recipe } from './dto/index'
 import { PhantomRequest } from '../common/request/index'
 import { AbstractStepHandler } from './index'
-import { FilterFactory } from '../filter/index'
+import { FilterFactory, FilterHelper } from '../filter/index'
+import { Filter } from '../common/scrap/index'
 
 export default class FilterRecipes extends AbstractStepHandler {
   
@@ -41,7 +42,7 @@ export default class FilterRecipes extends AbstractStepHandler {
     
     const saveButton = await page.waitForXPath('//button[text()="Enregistrer"]', { visible: true })
     await saveButton.click()
-  
+    await FilterHelper.waitFor(1000)
     return null
   }
   

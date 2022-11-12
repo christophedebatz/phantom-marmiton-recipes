@@ -17,18 +17,13 @@ export default class SearchRecipe extends AbstractStepHandler {
     await page.type("input[type='search']", request.query)
     await page.keyboard.press('Enter')
   
-    console.log('--4--')
+    try {
+      await page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 10000 })
+    } catch (exception) {
+      console.error('Unable to wait until page loaded after search has been sent.')
+    }
   
-    await (async () => new Promise(resolve => setTimeout(resolve, 3500)))
-    
-    // try {
-    //   await page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 7500 })
-    // } catch (exception) {
-    //   console.error('Unable to wait until page loaded after search has been sent.')
-    // }
-  
-    console.log('--4--')
-    console.log(page.url())
+    console.log('url=', page.url())
   
     return null
   }

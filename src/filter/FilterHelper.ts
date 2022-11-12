@@ -19,7 +19,7 @@ export default class FilterHelper {
    * @param page the Puppeteer page browser
    * @param timeout the timeout to never overpass
    */
-  public static async waitForAccordionTransition(page: Page, timeout: number = 1500): Promise<void> {
+  public static async waitForAccordionTransition(page: Page, timeout: number = 2000): Promise<void> {
     await page.waitForFunction(
       'document.evaluate(' +
       '     \'//div[@aria-expanded="true"]\', ' +
@@ -30,5 +30,15 @@ export default class FilterHelper {
       ').singleNodeValue !== null',
       { timeout }
     )
+  }
+  
+  /**
+   * Emulates function page.waitFor that actually throw a notImplementedException when called.
+   * Just pause the main js thread for the given amount of milliseconds.
+   *
+   * @param delayMs the waiting time in ms
+   */
+  public static async waitFor(delayMs: number): Promise<void> {
+    await (async () => new Promise<void>(resolve => setTimeout(resolve, 2000)))
   }
 }
