@@ -1,150 +1,77 @@
 import puppeteer, { Page } from 'puppeteer'
 import { Recipe } from '../step/dto'
-import { ScrapHelper } from '../common/scrap'
-const { parentPort, isMainThread, workerData } = require('worker_threads')
 
-export default class LibRecipeSupplier {
+import { parentPort, isMainThread, workerData } from 'worker_threads'
+import { resolveRecipeFilteringInfo } from './filteringInfoResolver'
+import { resolveRecipeSteps } from './stepResolver'
+import { resolveRecipePictures } from './pictureResolver'
+import { resolveRecipeName } from './nameResolver'
+import { tryCloseCookiePopin, waitFor } from '../common/scrap'
+
+class LibRecipeSupplier {
   
-  public async get(): Promise<Recipe> {
-    return new Promise<Recipe>(async (resolve, reject) => {
-      if (typeof workerData !== 'object' || !workerData.hasOwnProperty('payload')) {
-        return reject(new Error('Worker data must have some "payload" property that contains the URL.'))
-      }
-  
-      const browser = await puppeteer.launch({
-        args: ["--no-sandbox"]
-      })
-  
-      const page = await browser.newPage()
-      await page.goto(workerData.payload)
+  /**
+   * Returns some recipe data directly from the Marmiton website pages.
+   */
+  public async get (): Promise<Recipe> {
+    return new Promise<Recipe>(async (resolve: (recipe: Recipe) => void) => {
+      const { payload: { url }} = workerData as { payload: WorkerThreadPayloadType }
       
-      let timeout = 2000
-      do {
-        try {
-          await ScrapHelper.waitFor(timeout)
-          await page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 0 })
-          break
-        } catch (navException) {
-          try {
-            await ScrapHelper.tryCloseCookiePopin(page)
-          } catch (closeException) {
-            // do nothing here
-          }
-          timeout *= 2
-        }
-  
-        console.log(timeout)
-      } while (timeout < 5000)
-      
-      const recipe = Object.assign(
-        { url: workerData.payload },
-        await this.resolveRecipeName(page),
-        await this.resolveRecipeSteps(page),
-        await this.resolveRecipePictures(page),
-        await this.resolveRecipeFilteringInfo(page)
+      await this.executeOnRecipePageContext(url, async (page: Page) =>
+        resolve(Object.assign(
+          { url },
+          await resolveRecipeName(page),
+          await resolveRecipeSteps(page),
+          await resolveRecipePictures(page, url),
+          await resolveRecipeFilteringInfo(page)
+        ) as Recipe)
       )
-      
-      await page.close()
-      await browser.close()
-  
-      resolve(recipe)
     })
   }
   
-  private async resolveRecipeName(page: Page): Promise<Partial<Recipe>> {
-    const DOMSelector = 'h1'
-  
-    return await page.evaluate(DOMSelector => {
-      const collection = Array.from(document.getElementsByTagName(DOMSelector))
-      
-      const name = collection.pop()
-      if (typeof name !== 'undefined') {
-        return { name: name.textContent }
-      }
-      
-      return {}
-    }, DOMSelector)
-  }
-  
-  private async resolveRecipeFilteringInfo(page: Page): Promise<Partial<Recipe>> {
-    const DOMSelector = 'RCP__sc-1qnswg8-1'
+  private async executeOnRecipePageContext(url: string, callback: (page: Page) => Promise<void>): Promise<void> {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox']
+    })
     
-    return await page.evaluate(DOMSelector => {
-      const collection = Array.from(document.getElementsByClassName(DOMSelector))
-      let partialRecipe: Partial<Recipe> = {}
-      
-      const cost = collection.pop()
-      if (typeof cost !== 'undefined') {
-        partialRecipe = {
-          cost: cost.textContent === null ? undefined : cost.textContent
-        }
-      }
-      
-      const difficulty = collection.pop()
-      if (typeof difficulty !== 'undefined') {
-        partialRecipe = Object.assign(
-          partialRecipe,
-          { difficulty: difficulty.textContent === null ? undefined : difficulty.textContent }
-        )
-      }
-  
-      const duration = collection.pop()
-      if (typeof duration !== 'undefined') {
-        partialRecipe = Object.assign(
-          partialRecipe,
-          { duration: duration.textContent === null ? undefined : duration.textContent }
-        )
-      }
-  
-      return partialRecipe
-    }, DOMSelector)
-  }
-  
-  private async resolveRecipeSteps (page: Page): Promise<Partial<Recipe>> {
-    const DOMSelector = 'RCP__sc-1wtzf9a-3'
-  
-    return await page.evaluate(DOMSelector => {
-      const steps: string[] = []
-      const collection = Array.from(document.getElementsByClassName(DOMSelector))
-  
-      collection.forEach(node => {
-        if (node.textContent !== null) {
-          steps.push(node.textContent)
-        }
-      })
-      
-      return { steps }
-    }, DOMSelector)
-  }
-  
-  private async resolveRecipePictures (page: Page): Promise<Partial<Recipe>> {
-    const DOMSelector = 'div.RCP__sc-40fnuy-1 img'
-
-    return await page.evaluate(DOMSelector => {
-      const picturesUrls: string[] = []
-      document.querySelectorAll(DOMSelector).forEach(node => {
-        const pictureUrl = node.getAttribute('src')
-        if (pictureUrl !== null) {
-          picturesUrls.push(pictureUrl)
-        }
-      })
+    const page: Page = await browser.newPage()
+    await page.goto(url)
     
-      return { picturesUrls }
-    }, DOMSelector)
+    let timeout = 2000
+    do {
+      try {
+        await waitFor(timeout)
+        await page.waitForNavigation({ waitUntil: ['domcontentloaded'], timeout: 0 })
+        break
+      } catch (navException) {
+        try {
+          await tryCloseCookiePopin(page)
+        } catch (closeException) {
+          // do nothing here
+        }
+        timeout *= 2
+      }
+    } while (timeout < 5000)
+  
+    try {
+      return await callback(page)
+    } catch (exception) {
+      if (exception instanceof Error) {
+        console.error(`Could not execute on recipe page context, given error is "${exception.message}".`)
+      }
+    } finally {
+      await page.close()
+      await browser.close()
+    }
   }
 }
 
-if (!isMainThread) {
-  const recipeSupplier = new LibRecipeSupplier()
-  
-  // promise used here because still inside es2015 context
-  recipeSupplier.get()
-    .then(recipe => {
-        if (typeof parentPort !== 'undefined') {
-          parentPort.postMessage(recipe)
-        }
-      })
-}
-
-
-
+(async () => {
+  if (!isMainThread) {
+    const recipeSupplier = new LibRecipeSupplier()
+    const recipe = await recipeSupplier.get()
+    if (parentPort !== null) {
+      parentPort.postMessage(recipe)
+    }
+  }
+})()

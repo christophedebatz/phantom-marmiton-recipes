@@ -1,11 +1,9 @@
 import { AbstractStepHandler } from '.'
 import { Scrapper } from '../common/scrap'
-import { Recipe } from './dto'
 import { PhantomRequest } from '../common/request/'
 import { Page } from 'puppeteer'
 
 export default class UserSummary extends AbstractStepHandler<null> {
-
   /**
    * @inheritDoc
    */
@@ -13,16 +11,16 @@ export default class UserSummary extends AbstractStepHandler<null> {
     this.progress(0, 'Initializing...')
     this.message(`Started scrapping data from ${Scrapper.WebsiteBaseUrl}...`)
     this.message(`- Search query: "${request.query}"`)
-  
+
     if (typeof request.pagesCount === 'undefined') {
       this.message('- Results limitation: no limitation set')
     } else {
       this.message(`- Results limitation: first ${request.pagesCount} results pages`)
     }
-    
+
     return null
   }
-  
+
   /**
    * @inheritDoc
    */

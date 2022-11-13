@@ -1,26 +1,35 @@
-import { Filter } from './src/common/scrap/index'
+import { Filter, Filterable } from './src/common/scrap'
 
 declare global {
-  type PhantomRequestFilters = {
+
+  interface PhantomRequestFilters {
     dish?: string[]
     difficulty?: string[]
     cost?: string[]
     duration?: string[]
     seasonal?: boolean
   }
-  
+
   type FilterSafeValueType =
     Exclude<PhantomRequestFilters[keyof PhantomRequestFilters], undefined>
-  
+
+  type FilterFactoryReturnType = Filterable<string[]> | Filterable<boolean>
+
   type StepHandlerReturnType<T> = T | null
-  
-  type FilterType = ( typeof Filter )[keyof typeof Filter];
-  
-  type UrlFilterDescriptorType = {
-    type: Filter,
+
+  interface UrlFilterDescriptorType {
+    type: Filter
     query: string
     items: UrlFilterItemDescriptorType[]
   }
-  
-  type UrlFilterItemDescriptorType = { label: string, value: string }
+
+  interface UrlFilterItemDescriptorType {
+    label: string
+    value: string
+  }
+
+  interface WorkerThreadPayloadType {
+    url: string
+    path: string
+  }
 }

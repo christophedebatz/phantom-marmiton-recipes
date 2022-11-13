@@ -11,10 +11,11 @@
         "strictNullChecks": true,
         "strictFunctionTypes": true,
         "alwaysStrict": true,
-        "typeRoots": ["main.d.ts", "node_modules/@types"]
+        "typeRoots": ["main.d.ts", "phantombuster.d.ts", "node_modules/@types"]
     },
     "include": [
         "./src",
+        "phantombuster.d.ts",
         "main.d.ts"
     ],
     "exclude": ["./node_modules"]

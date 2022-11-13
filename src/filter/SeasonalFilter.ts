@@ -2,14 +2,13 @@ import { Page } from 'puppeteer'
 import { Filter, Filterable } from '../common/scrap'
 
 export default class SeasonalFilter implements Filterable<boolean> {
-  
   /**
    * @inheritDoc
    */
-  public supports (name: FilterType): boolean {
+  public supports (name: string): boolean {
     return name === Filter.Seasonal
   }
-  
+
   /**
    * @inheritDoc
    */
