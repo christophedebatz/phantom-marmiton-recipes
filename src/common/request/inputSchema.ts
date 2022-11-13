@@ -10,10 +10,10 @@ const schema: JSONSchemaType<PhantomRequest> = {
     pagesCount: { type: 'integer', nullable: true },
     filters: {
       type: 'object',
-      nullable: true,
       additionalProperties: false,
       minProperties: 0,
       required: [],
+      nullable: true,
       properties: {
         dish: { type: 'array', nullable: true },
         difficulty: { type: 'array', nullable: true },

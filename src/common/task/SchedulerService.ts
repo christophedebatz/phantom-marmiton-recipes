@@ -3,7 +3,7 @@ import { AsyncTaskException } from './AsyncTaskException'
 import fs from 'fs'
 import path from 'path'
 
-export class AsyncTaskService {
+export class SchedulerService {
   public async schedule<T, R> (asyncTaskName: string, payload: Partial<T>): Promise<R> {
     const taskFilePath = path.resolve(__dirname, './lib-recipe-supplier.js')
 

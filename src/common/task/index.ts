@@ -1,7 +1,7 @@
 import { AsyncTaskException } from './AsyncTaskException'
-import { AsyncTaskService } from './AsyncTaskService'
+import { SchedulerService } from './SchedulerService'
 
 export {
   AsyncTaskException,
-  AsyncTaskService
+  SchedulerService
 }

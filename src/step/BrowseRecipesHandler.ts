@@ -1,14 +1,14 @@
 import { AbstractStepHandler } from '.'
 import { Page } from 'puppeteer'
 import { PhantomRequest } from '../common/request'
-import { AsyncTaskException, AsyncTaskService } from '../common/task'
+import { AsyncTaskException, SchedulerService } from '../common/task'
 import { Recipe } from './dto'
 import { Scrapper } from '../common/scrap'
 
 export default class BrowseRecipesHandler extends AbstractStepHandler<Recipe[]> {
   
   public constructor (
-    private readonly scheduler: AsyncTaskService,
+    private readonly scheduler: SchedulerService,
     private readonly maxConcurrentTasks: number,
     private readonly recipesPerPage: number
   ) {

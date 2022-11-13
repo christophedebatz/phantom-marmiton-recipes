@@ -1,5 +1,5 @@
 import { Recipe } from './dto'
-import { AsyncTaskService } from '../common/task'
+import { SchedulerService } from '../common/task'
 import { FilterFactory } from '../filter'
 import { BrowseRecipesHandler, CloseCookiePopinHandler, FilterRecipes, SearchRecipe, UserSummary } from '.'
 import { StepHandler } from '../common/scrap'
@@ -18,7 +18,7 @@ export default class StepHandlerFactory {
     // this.stepHandlers.push(new CloseCookiePopinHandler())
     this.stepHandlers.push(
       new BrowseRecipesHandler(
-        new AsyncTaskService(),
+        new SchedulerService(),
         StepHandlerFactory.MaxConcurrentTasks,
         StepHandlerFactory.RecipesPerPage
       )
