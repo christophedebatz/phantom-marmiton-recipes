@@ -1,6 +1,6 @@
 [
     name: 'Btz Studio'
-    apiKey: 'PpGa4JDKyJPGoh2wE0FLnNLGuBwABKC57dazVbm2sxs'
+    apiKey: '<your api key>'
     scripts:
         'marmiton.js': 'build/facade.js'
         'lib-recipe-supplier.js': 'build/lib-recipe-supplier.js'

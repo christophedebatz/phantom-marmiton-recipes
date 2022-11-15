@@ -5,6 +5,9 @@
 $ git clone git@github.com:christophedebatz/phantom-marmiton-recipes.git marmiton-phantom && cd marmiton-phantom && npm i
 ```
 
+> **Tips**
+> You must set the API key in the file `phantombuster.cson`. 
+
 ## Phantom Buster setup
 You can test this Phantom by setuping 3 js phantoms
 - 1 facade script ("facade.js")
