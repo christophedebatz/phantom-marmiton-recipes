@@ -3,7 +3,7 @@ import { Scrapper } from '../common/scrap'
 import { PhantomRequest } from '../common/request/'
 import { Page } from 'puppeteer'
 
-export default class UserSummary extends AbstractStepHandler<null> {
+export default class UserSummaryHandler extends AbstractStepHandler<null> {
   /**
    * @inheritDoc
    */

@@ -14,6 +14,8 @@ declare global {
     Exclude<PhantomRequestFilters[keyof PhantomRequestFilters], undefined>
 
   type FilterFactoryReturnType = Filterable<string[]> | Filterable<boolean>
+  
+  type FilterItemType = Array<string> & boolean
 
   type StepHandlerReturnType<T> = T | null
 

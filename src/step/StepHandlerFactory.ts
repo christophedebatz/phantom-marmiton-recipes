@@ -1,7 +1,7 @@
 import { Recipe } from './dto'
 import { SchedulerService } from '../common/task'
 import { FilterFactory } from '../filter'
-import { BrowseRecipesHandler, CloseCookiePopinHandler, FilterRecipes, SearchRecipe, UserSummary } from '.'
+import { BrowseRecipesHandler, CloseCookiePopinHandler, FilterRecipesHandler, SearchRecipeHandler, UserSummaryHandler } from '.'
 import { StepHandler } from '../common/scrap'
 
 export default class StepHandlerFactory {
@@ -12,10 +12,10 @@ export default class StepHandlerFactory {
   private readonly stepHandlers: Array<StepHandler<StepHandlerReturnType<Recipe[]>>> = []
 
   public constructor () {
-    this.stepHandlers.push(new UserSummary())
-    this.stepHandlers.push(new FilterRecipes(new FilterFactory()))
-    this.stepHandlers.push(new SearchRecipe())
-    // this.stepHandlers.push(new CloseCookiePopinHandler())
+    this.stepHandlers.push(new UserSummaryHandler())
+    this.stepHandlers.push(new FilterRecipesHandler(new FilterFactory()))
+    this.stepHandlers.push(new SearchRecipeHandler())
+    this.stepHandlers.push(new CloseCookiePopinHandler())
     this.stepHandlers.push(
       new BrowseRecipesHandler(
         new SchedulerService(),
@@ -31,7 +31,6 @@ export default class StepHandlerFactory {
   public build (): Array<StepHandler<StepHandlerReturnType<Recipe[]>>> {
     return this
       .stepHandlers
-      .sort((step, nextStep) => step.getRank() - nextStep.getRank()
-      )
+      .sort((step, nextStep) => step.getRank() - nextStep.getRank())
   }
 }

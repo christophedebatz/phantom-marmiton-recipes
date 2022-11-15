@@ -1,6 +1,7 @@
 import { JSONSchemaType } from 'ajv'
 import PhantomRequest from './PhantomRequest'
 
+// @ts-ignore
 const schema: JSONSchemaType<PhantomRequest> = {
   type: 'object',
   required: ['query'],

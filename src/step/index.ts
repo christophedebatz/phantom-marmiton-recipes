@@ -1,15 +1,15 @@
 import AbstractStepHandler from './AbstractStepHandler'
-import SearchRecipe from './SearchRecipe'
 import BrowseRecipesHandler from './BrowseRecipesHandler'
-import FilterRecipes from './FilterRecipes'
-import UserSummary from './UserSummary'
 import CloseCookiePopinHandler from './CloseCookiePopinHandler'
+import FilterRecipesHandler from './FilterRecipesHandler'
+import SearchRecipeHandler from './SearchRecipeHandler'
+import UserSummaryHandler from './UserSummaryHandler'
 
 export {
   AbstractStepHandler,
-  FilterRecipes,
+  FilterRecipesHandler,
   BrowseRecipesHandler,
-  SearchRecipe,
-  UserSummary,
+  SearchRecipeHandler,
+  UserSummaryHandler,
   CloseCookiePopinHandler
 }

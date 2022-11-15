@@ -66,15 +66,17 @@ export default class BrowseRecipesHandler extends AbstractStepHandler<Recipe[]> 
     const url = new URL(page.url())
     const params = new URLSearchParams(url.search)
 
-    params.has('page')
-      ? params.set('page', pageIndex.toString())
-      : params.append('page', pageIndex.toString())
-
+    if (params.has('page')) {
+      params.set('page', pageIndex.toString())
+    } else {
+      params.append('page', pageIndex.toString())
+    }
+    
     const nextUrl = `${url.protocol}//${url.host}${url.pathname}?${params.toString()}`
     await page.goto(nextUrl, { waitUntil: 'domcontentloaded' })
   }
 
-  private async getRecipesForCurrentPage (recipesUrls: string[]): Promise<Recipe[]> {
+  private async getRecipesForCurrentPage (recipesUrls: Array<string>): Promise<Array<Recipe>> {
     const recipes: Recipe[] = []
     let recipesCount = 0
 

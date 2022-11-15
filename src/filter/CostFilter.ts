@@ -1,6 +1,6 @@
 import { Page } from 'puppeteer'
 import { Filter, Filterable } from '../common/scrap'
-import { findFilterItemDescriptor } from './FilterHelper'
+import { findFilterItemDescriptor } from './'
 
 export default class CostFilter implements Filterable<string[]> {
   private readonly filterDescriptor: UrlFilterDescriptorType = this.describesFilter()

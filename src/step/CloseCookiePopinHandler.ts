@@ -8,7 +8,11 @@ export default class CloseCookiePopinHandler extends AbstractStepHandler<null> {
    * @inheritDoc
    */
   public async handles (page: Page, request: PhantomRequest): Promise<StepHandlerReturnType<null>> {
-    await tryCloseCookiePopin(page)
+    try {
+      await tryCloseCookiePopin(page)
+    } catch (ex) {
+      // do nothing
+    }
     return null
   }
 

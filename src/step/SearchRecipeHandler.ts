@@ -2,7 +2,7 @@ import { Page } from 'puppeteer'
 import { PhantomRequest } from '../common/request'
 import { AbstractStepHandler } from '.'
 
-export default class SearchRecipe extends AbstractStepHandler<null> {
+export default class SearchRecipeHandler extends AbstractStepHandler<null> {
   /**
    * @inheritDoc
    */

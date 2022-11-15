@@ -4,7 +4,7 @@ import { AbstractStepHandler } from '.'
 import { FilterFactory } from '../filter'
 import { Scrapper, waitFor } from '../common/scrap'
 
-export default class FilterRecipes extends AbstractStepHandler<null> {
+export default class FilterRecipesHandler extends AbstractStepHandler<null> {
   
   public constructor (private readonly filterFactory: FilterFactory) {
     super()
@@ -26,23 +26,23 @@ export default class FilterRecipes extends AbstractStepHandler<null> {
     // filters cannot be undefined at this point since supports method checked it before
     const requestedFilters = request.filters as { [key: string]: FilterSafeValueType }
     const filters = this.filterFactory.buildFilters()
-    const queryParts: string[] = []
+    const query: string[] = []
 
     for (const filter of filters) {
       for (const filterName in requestedFilters) {
         if (filter.supports(filterName)) {
-          const filterItem = requestedFilters[filterName] as Array<string> & boolean
+          const filterItem = requestedFilters[filterName] as FilterItemType
           const partSearch = await filter.filters(page, filterItem)
-          queryParts.push(`&${partSearch.toString()}`)
+          query.push(`&${partSearch.toString()}`)
         }
       }
     }
 
     const urlParts = [`${Scrapper.WebsiteBaseUrl}/recettes/recherche.aspx`]
     urlParts.push(`?aqt=${encodeURIComponent(request.query)}`)
-    urlParts.push(queryParts.join(''))
+    urlParts.push(query.join(''))
 
-    this.message(`Not-paginated URL is ${urlParts.join('')}`)
+    this.message(urlParts.join(''))
 
     await page.goto(urlParts.join(''))
     await waitFor(1000)
@@ -50,7 +50,7 @@ export default class FilterRecipes extends AbstractStepHandler<null> {
     return null
   }
 
-  /** s
+  /**
    * @inheritDoc
    */
   public getRank (): number {

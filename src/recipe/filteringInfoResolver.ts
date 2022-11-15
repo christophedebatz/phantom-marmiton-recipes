@@ -4,7 +4,7 @@ import { Recipe } from '../step/dto'
 export const resolveRecipeFilteringInfo = async (page: Page): Promise<Partial<Recipe>> => {
   const DOMSelector = 'RCP__sc-1qnswg8-1'
   
-  return await ( await page.evaluate((DOMSelector: string): Partial<Recipe> => {
+  return (await page.evaluate((DOMSelector: string): Partial<Recipe> => {
     const collection: Element[] = Array.from(document.getElementsByClassName(DOMSelector))
     let partialRecipe: Partial<Recipe> = {}
     
@@ -32,5 +32,5 @@ export const resolveRecipeFilteringInfo = async (page: Page): Promise<Partial<Re
     }
     
     return partialRecipe
-  }, DOMSelector) as Promise<Partial<Recipe>> )
+  }, DOMSelector) as Promise<Partial<Recipe>>)
 }
