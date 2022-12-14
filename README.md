@@ -1,4 +1,5 @@
 ## Marmiton Phantom
+A automatic tool to get data from marmiton.org with Phantom Company / PhantomBuster SDK.
 ## Code installation
 
 ```
